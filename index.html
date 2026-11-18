@@ -415,14 +415,19 @@ function show(i,n,dir){
     void S[i].offsetWidth;
   }
   idx=i; step=(n==null?0:n);
+  stopAuto();
   setBuild(i,step);
+  // the cover plays its own entrance; every other slide waits for "next"
+  if(i===0&&step===0&&steps[0].length){ steps[0].forEach(function(g,k){ autoT.push(setTimeout(function(){ if(idx===0&&step===k){ step=k+1; setBuild(0,step); } if(k===steps[0].length-1) autoT=[]; }, 350+k*650)); }); }
   S[i].classList.remove('prev-push','next-push'); S[i].classList.add('on');
   document.getElementById('count').textContent=(i+1).toLocaleString('fa-IR')+' / '+S.length.toLocaleString('fa-IR');
   document.getElementById('bar').style.width=((i+1)/S.length*100)+'%';
   document.getElementById('notes').innerHTML='<b>یادداشت اسلاید '+(i+1).toLocaleString('fa-IR')+'</b>'+(NOTES[i]||'—');
   try{history.replaceState(null,'','#'+(i+1))}catch(e){}
 }
-function next(){ if(step<steps[idx].length){step++; setBuild(idx,step);} else if(idx<S.length-1) show(idx+1,0,1); }
+var autoT=[];
+function stopAuto(){ autoT.forEach(clearTimeout); autoT=[]; }
+function next(){ if(idx===0&&autoT.length){ stopAuto(); show(1,0,1); return; } if(step<steps[idx].length){step++; setBuild(idx,step);} else if(idx<S.length-1) show(idx+1,0,1); }
 function prev(){ if(step>0){step--; setBuild(idx,step);} else if(idx>0) show(idx-1,steps[idx-1].length,-1); }
 function full(){ var d=document; if(!d.fullscreenElement){ (d.documentElement.requestFullscreen||function(){}).call(d.documentElement);} else d.exitFullscreen(); }
 function toggle(c){document.body.classList.toggle(c);}
